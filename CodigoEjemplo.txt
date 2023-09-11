@@ -1,0 +1,58 @@
+#SCRIPT PARA GUARDAR DATO 
+
+from opcua import Client, ua
+
+#CONFIG DE SERVER OPC UA 
+url = "opc.tcp://192.168.1.10:4840"
+client = Client(url)
+client.session_timeout = 30000
+client.connect()
+print(f"Connected: {url}")
+
+#LEER DATO READY 
+
+datoReadyNode=client.get_node('ns=4;i=24')
+
+print("DatoReady: ", datoReadyNode.get_value())
+datoReady=datoReadyNode.get_value()
+
+
+if datoReady==0:
+    print("DatoNoListo")
+
+    
+    
+if datoReady==1:
+    
+    #LEER DATO DE PRIMER STRING
+    dato=client.get_node('ns=4;i=3')
+
+    print("STRINGPieza: ", dato.get_value())
+    
+    #AVISAR QUE YA GUARDÉ
+    
+    node = client.get_node('ns=4;i=25')
+
+    print("beforeDatoGuardado: ", node.get_value())
+    node.set_value(ua.DataValue(ua.Variant(1, ua.VariantType.Boolean )))
+    print("afterDatoGuardado: ", node.get_value())
+    
+    #RESET DATO GUARDADO
+    
+    print("beforeDatoGuardado: ", node.get_value())
+    node.set_value(ua.DataValue(ua.Variant(0, ua.VariantType.Boolean )))
+    print("afterDatoGuardado: ", node.get_value())
+    
+    #RESET A DATO
+    node2 = client.get_node('ns=4;i=24')
+
+    print("beforeDatoReady: ", node2.get_value())
+    node2.set_value(ua.DataValue(ua.Variant(0, ua.VariantType.Boolean )))
+    print("afterDatoReady: ", node.get_value())
+    
+
+
+
+
+client.disconnect()
+print("Disconnected")
